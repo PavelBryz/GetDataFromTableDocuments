@@ -77,10 +77,9 @@ class Image:
             box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
             box = np.int0(box)  # округление координат
             my_data = np.sort(box, axis=0)
-            for i in [my_data]:
-                if abs(my_data[2][1] - my_data[0][1]) >= 20 and abs(
-                        my_data[2][0] - my_data[0][0]) >= 40 and w < weight - 50 and h < height - 50:
-                    all_counters.append(Counter(i, w, h, standart_image, image))
+            if abs(my_data[2][1] - my_data[0][1]) >= 20 and abs(
+                    my_data[2][0] - my_data[0][0]) >= 40 and w < weight - 50 and h < height - 50:
+                all_counters.append(Counter(i))
 
         our_counters = []
         for i in all_counters:
