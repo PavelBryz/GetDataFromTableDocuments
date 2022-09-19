@@ -86,6 +86,6 @@ class Image:
             for j in all_counters:
                 i.is_inside(j)
             if i.count_inner == 0:
-                our_counters.append(i)
+                our_counters.append(i)aadf
 
         return our_counters
