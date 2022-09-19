@@ -39,7 +39,7 @@ class Image:
         rotation_matrix[0, 2] += bound_w / 2 - center[0]
         rotation_matrix[1, 2] += bound_h / 2 - center[1]
 
-        rotated = cv2.warpAffine(image, rotation_matrix, (bound_w, bound_h))
+        rotated = cv2.warpAffine(self.image, rotation_matrix, (bound_w, bound_h))
 
     def crop_image(self, counter: Counter):
         crop = self.image[counter.top_left[1]: counter.top_left[1] + counter.get_height(),
