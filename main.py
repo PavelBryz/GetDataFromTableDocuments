@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html')f
 
 
 @app.route('/api/v1.0/get_text', methods=['POST'])
