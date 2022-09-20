@@ -13,7 +13,6 @@ from matplotlib import cm
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Niyazov.I\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
-
 class Counter():
     def __init__(self, box, w, h, standard_image, img_contrast, angle):
         self.angle = angle
