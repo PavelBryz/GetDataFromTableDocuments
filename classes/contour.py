@@ -1,19 +1,18 @@
 import numpy as np
+from typing import Type, List
 
 
-class Counter:
+class Contour:
+    top_left = None
+    top_right = None
+    down_right = None
+    down_left = None
+
     def __init__(self, box):
         self.top_left = (box[0][0], box[0][1])
         self.top_right = (box[1][0], box[1][1])
         self.down_right = (box[2][0], box[2][1])
         self.down_left = (box[3][0], box[3][1])
-
-        self.top_left_y_sorted = box[0][1]
-
-        # self.standart_image = standart_image
-        # self.image_contrast = image_contrast
-
-        self.column = None
 
         self.count_inner = 0
 
@@ -26,7 +25,7 @@ class Counter:
                min(self.top_left[1], self.top_right[1], self.down_left[1], self.down_right[1])
 
     def __repr__(self) -> str:
-        return f"{self.top_left[1]}|{self.column}"
+        return f"{self.top_left[1]}"
 
     def __lt__(self, other) -> bool:
         return self.top_left[1] < other.top_left[1]
@@ -54,10 +53,32 @@ class Counter:
                 self.down_left[0] > other.down_left[0]) and (self.down_left[1] - 2 < other.down_left[1]):
             self.count_inner += 1
 
-
-    def coordinares(self):
+    def coordinates(self):
         coordinate_array = np.array([[int(self.top_left[0]), int(self.top_left[1])],
                                      [int(self.top_right[0]), int(self.top_right[1])],
                                      [int(self.down_right[0]), int(self.down_right[1])],
                                      [int(self.down_left[0]), int(self.down_left[1])]])
         return coordinate_array
+
+
+class ContourOfTable(Contour):
+    column = None
+
+    def __init__(self, box):
+        super().__init__(box)
+
+    def __repr__(self) -> str:
+        return f"{self.top_left[1]}|{self.column}"
+
+    @staticmethod
+    def share_counters(array_counters: List[Type['ContourOfTable']]) -> None:
+        col = 0
+
+        array = [y for y in array_counters if y.column is None]
+        while array.__len__() > 0:
+            col += 1
+            min_y = min(array).top_left[1]
+            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 15)]
+            for el in col_y:
+                el.column = col
+                el.top_left[1] = min_y

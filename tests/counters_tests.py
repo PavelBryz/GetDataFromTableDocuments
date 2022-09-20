@@ -1,5 +1,5 @@
 import unittest
-from classes.сounter import Counter
+from classes.contour import Contour
 
 
 class MyTestCase(unittest.TestCase):
@@ -8,7 +8,7 @@ class MyTestCase(unittest.TestCase):
                [15, 4],
                [17, 21],
                [6, 22]]
-        count = Counter(box)
+        count = Contour(box)
         self.assertEqual(count.top_left, (5, 5))
         self.assertEqual(count.top_right, (15, 4))
         self.assertEqual(count.down_left, (6, 22))
@@ -19,7 +19,7 @@ class MyTestCase(unittest.TestCase):
                [15, 4],
                [17, 21],
                [6, 22]]
-        count = Counter(box)
+        count = Contour(box)
         self.assertEqual(count.get_wight(), 12)
 
     def test_get_height(self):
@@ -27,7 +27,7 @@ class MyTestCase(unittest.TestCase):
                [15, 4],
                [17, 21],
                [6, 22]]
-        count = Counter(box)
+        count = Contour(box)
         self.assertEqual(count.get_height(), 18)
 
 
