@@ -16,7 +16,7 @@ def find_angle(contour: ContourOfTable) -> float:
     # вычисляем угол между самой длинной стороной прямоугольника и горизонтом
     angle = 180.0 / math.pi * math.acos(
         (reference[0] * used_edge[0] + reference[1] * used_edge[1]) / (cv2.norm(reference) * cv2.norm(used_edge)))
-    if angle > 10.0:  # ToDo Why?
+    if angle > 10.0:  # Костыль. Есть ситуации при которых по какой-то причине не корректно определяется угол.
         angle = 1.0
     if contour.down_right[1] > contour.top_left[1]:
         angle = -angle - 0.1
