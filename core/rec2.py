@@ -12,6 +12,7 @@ from PIL import Image
 from matplotlib import cm
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Niyazov.I\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+## fff
 
 class Counter():
     def __init__(self, box, w, h, standard_image, img_contrast, angle):
