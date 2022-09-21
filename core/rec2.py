@@ -12,7 +12,7 @@ from PIL import Image
 from matplotlib import cm
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Niyazov.I\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
-## fff
+
 
 class Counter():
     def __init__(self, box, w, h, standard_image, img_contrast, angle):
@@ -145,19 +145,23 @@ def find_angle(box):
 
 
 # Функция нахождения конутров
-def find_counters(image, standard_image, iter=False):
+def find_counters(image, standard_image, iter=False, table=False):
     all_counters = []
+    our_counters = []
     (height, weight) = image.shape[:2]
-    image_contrast = cv2.resize(image, (image.shape[1], image.shape[0]))  # ToDo 0_0 what for =)))
     # преобразовывем изображение в оттенки серого
-    gray = cv2.cvtColor(image_contrast, cv2.COLOR_BGR2GRAY)  # ToDo Why not to read image in grayscale?
+    gray = cv2.cvtColor(image_contrast, cv2.COLOR_BGR2GRAY)
     # производим бинаризацию
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     if iter:
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (35, 1))
         thresh = cv2.dilate(thresh, kernel, iterations=1)
-    counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # image_counter = cv2.drawContours(image_contrast, counters, -1, (0, 0, 255), 1, cv2.LINE_8, hierarchy=hi)
+        counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if table:
+        counters, hi = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    else:
+        counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    image_counter = cv2.drawContours(image_contrast, counters, -1, (0, 0, 255), 1, cv2.LINE_8, hierarchy=hi)
     # save_or_show_image(None, image_counter)
     for counter in counters:
         x, y, w, h = cv2.boundingRect(counter)
@@ -180,6 +184,12 @@ def find_counters(image, standard_image, iter=False):
                         all_counters.append(Counter(coordinates, w, h, standard_image, image, -angle - 0.1))
                     else:
                         all_counters.append(Counter(coordinates, w, h, standard_image, image, angle))
+        elif table:
+            for coordinates in [my_data]:
+                if abs(my_data[2][1] - my_data[0][1]) >= 12 and abs(
+                        my_data[2][0] - my_data[0][0]) >= 40 and w < weight and h < height:
+                    all_counters.append(Counter(coordinates, w, h, standard_image, image, 0))
+
         else:
             if 4 <= len(apd) <= 6 and w > 50 and h > 30:
                 angle = find_angle(box)
@@ -188,7 +198,17 @@ def find_counters(image, standard_image, iter=False):
                         all_counters.append(Counter(coordinates, w, h, standard_image, image, -angle - 0.1))
                     else:
                         all_counters.append(Counter(coordinates, w, h, standard_image, image, angle))
-    return all_counters
+
+    if table:
+        for counters in all_counters:
+            for j in all_counters:
+                counters.is_inside(j)
+            if counters.count_inner == 2:
+                our_counters.append(counters)
+
+        return our_counters
+    else:
+        return all_counters
 
 
 # Функция поворота изображения
@@ -216,41 +236,6 @@ def rotation_image(image):
 
     rotated = cv2.warpAffine(img, rotation_matrix, (bound_w, bound_h))
     return rotated
-
-
-# Функция нахождения конутров
-def find_counters_tables(image, standard_image):
-    all_counters = []
-    (height, weight) = standard_image.shape[:2]
-    img_contrast = cv2.resize(image, (image.shape[1], image.shape[0]))
-    # преобразовывем изображение в оттенки серого
-    gray = cv2.cvtColor(img_contrast, cv2.COLOR_BGR2GRAY)
-    # производим бинаризацию
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-    # dst = cv2.erode(thresh, kernel, iterations=0)
-    counters, hi = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    image_counter = cv2.drawContours(img_contrast, counters, -1, (0, 0, 255), 1, cv2.LINE_8, hierarchy=hi)
-    for counter in counters:
-        x, y, w, h = cv2.boundingRect(counter)
-        # проверять ширину тут что бы не было лишних вычислений
-        rect = cv2.minAreaRect(counter)  # пытаемся вписать прямоугольник
-        box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
-        box = np.int0(box)  # округление координат
-        my_data = np.sort(box, axis=0)
-        for coordinates in [my_data]:
-            if abs(my_data[2][1] - my_data[0][1]) >= 12 and abs(
-                    my_data[2][0] - my_data[0][0]) >= 40 and w < weight and h < height:
-                all_counters.append(Counter(coordinates, w, h, standard_image, image, 0))
-    our_counters = []
-
-    for counters in all_counters:
-        for j in all_counters:
-            counters.is_inside(j)
-        if counters.count_inner == 2:
-            our_counters.append(counters)
-
-    return our_counters
 
 
 # Функция распределения контуров по линии
@@ -333,22 +318,30 @@ def processing_image(array_images, method, threshhold):
         array_part_thresh, array_part_dst = [], []
         for image in images_line:
             # image = cv2.bilateralFilter(image, 5, 10, 10)
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            h, w = image.shape[:2]
+            crop_black = image[0 + 20:h - 20, 0 + 20:w - 20]
+            gray = cv2.cvtColor(crop_black, cv2.COLOR_BGR2GRAY)
+            image_black = cv2.threshold(gray, 25, 255, 0)[1]
+            black_pic = np.sum(image_black == 0)
+            print(black_pic)
 
-            # Проверку надо делать по внутреннему контуру, делать рсщирение текста и если внутри есть контур больше определенной длины, то это текст, если нету то там пусто
-            # save_or_show_image(None, thresh_2)
+            if black_pic != 0:
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            kernel = np.array([[-1, -1, -1],
-                               [-1, 9, -1],
-                               [-1, -1, -1]])
-            image_ke = cv2.filter2D(gray, -1, kernel)  # увеличиваем резкость
-            thresh = cv2.threshold(image_ke, threshhold, 255, method)[1]  # производим обработку threshold
-            kernel_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-            dst = cv2.erode(thresh, kernel_erode, iterations=1)  # производим коррозию
+                kernel = np.array([[-1, -1, -1],
+                                   [-1, 9, -1],
+                                   [-1, -1, -1]])
+                image_ke = cv2.filter2D(gray, -1, kernel)  # увеличиваем резкость
+                thresh = cv2.threshold(image_ke, threshhold, 255, method)[1]  # производим обработку threshold
+                kernel_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+                dst = cv2.erode(thresh, kernel_erode, iterations=1)  # производим коррозию
 
-            # проверку на наличие текста и в зависимости от этого уже решаем что добавлять
-            array_part_thresh.append(text_on_image_recognition(thresh))
-            array_part_dst.append(text_on_image_recognition(dst))
+                # проверку на наличие текста и в зависимости от этого уже решаем что добавлять
+                array_part_thresh.append(text_on_image_recognition(thresh))
+                array_part_dst.append(text_on_image_recognition(dst))
+            else:
+                array_part_thresh.append('Пусто')
+                array_part_dst.append('Пусто')
 
         array_all_thresh.append(array_part_thresh)
         array_all_dst.append(array_part_dst)
@@ -384,8 +377,8 @@ def text_on_image_recognition(images):
     text_on_image = text_on_image_replace(text_on_image).replace("\n", " ").strip()
     # print(text_on_image)
 
-    # if len(text_on_image) == 0:
-    #     return 'не распознал'
+    if len(text_on_image) == 0:
+        return 'не распознал'
     if text_on_image.lower() == 'nn' or text_on_image.lower() == 'пп':
         return 'ПП'
     elif text_on_image.lower() == 'wt':
@@ -430,8 +423,12 @@ def my_func(array_image_single):
     qwe = []
     if np.all(array_image_single == 'не распознал'):
         return np.array('не распознал', dtype="<U1000")
+    if np.all(array_image_single == 'Пусто'):
+        return np.array('Пусто', dtype="<U1000")
     array_image_single = np.delete(np.array(array_image_single),
                                    np.where(np.array(array_image_single) == 'не распознал'))
+    array_image_single = np.delete(np.array(array_image_single),
+                                   np.where(np.array(array_image_single) == 'Пусто'))
     if len(array_image_single) == 1:
         return np.array(array_image_single[0], dtype="<U1000")
     for first in range(len(array_image_single)):
@@ -488,7 +485,7 @@ def append_table(array):
     max_len = max(map(len, array))
     for i in array:
         while len(i) < max_len:
-            i.insert(0, ' ')
+            i.insert(0, 'Пусто')
     return array
 
 
@@ -584,7 +581,7 @@ def dataframe_text(dataframe, unification_array_img, id, page_count, string_coun
 
 if __name__ == '__main__':
     dataframe = None
-    resize = 1.5
+    resize = 2
     contrast = 2.5
     start = datetime.now()
     pdf_t = ['Счет3.pdf']
@@ -595,7 +592,7 @@ if __name__ == '__main__':
             print('Страница: ', page_count)
             image_contrast = contrast_image(single_image, 7.0)
             # Находим таблицы на изображении
-            tables_on_image = find_counters(image_contrast[0], image_contrast[1], iter=False)
+            tables_on_image = find_counters(image_contrast[0], image_contrast[1])
             share_counters_tables = share_counters(tables_on_image)
             if len(share_counters_tables) != 0:
                 sorted_counters_tables = np.hstack(sorted_counters(share_counters_tables))
@@ -604,7 +601,7 @@ if __name__ == '__main__':
                 for table in sorted_counters_tables:
                     rotation = rotation_image(table)
                     contrast_img = contrast_image(rotation, contrast)
-                    find_counters_in_table = find_counters_tables(contrast_img[0], contrast_img[1])
+                    find_counters_in_table = find_counters(contrast_img[0], contrast_img[1], table=True)
                     if len(find_counters_in_table) != 0:
                         share_counters_in_table = share_counters(find_counters_in_table)
                         sorted_counters_in_table = sorted_counters(share_counters_in_table)
@@ -681,18 +678,7 @@ if __name__ == '__main__':
 
             page_count += 1
             print(f'Text', datetime.now() - start)
-    dataframe['Y'] = dataframe['Y'].astype(int)
+    dataframe[['Номер страницы', 'Y']] = dataframe[['Номер страницы', 'Y']].astype(int)
     dataframe.sort_values(by=['Номер страницы', 'Y'], inplace=True)
+    dataframe.drop(columns='Y', axis=1, inplace=True)
     dataframe.to_excel(f'result.xlsx')
-
-# dataframe = pd.DataFrame(unification_array_img).stack().reset_index()
-#         dataframe.rename(columns={'level_0': 'Строка', 'level_1': 'Колонка', 0: 'Значение'}, inplace=True)
-#         dataframe['Строка'] = None
-#         dataframe['Колонка'] = None
-#         dataframe.insert(0, 'Счет', id, allow_duplicates=True)
-#         dataframe.insert(1, 'Номер страницы', page_count, allow_duplicates=True)
-#         dataframe.insert(2, 'Вид объекта', 'строка', allow_duplicates=True)
-#         dataframe.insert(3, 'Номер таблицы', None, allow_duplicates=True)
-#         dataframe.insert(6, 'Номер строки', string_count, allow_duplicates=True)
-#         dataframe['Координаты'] = f'{coordinates_text}'
-#         dataframe['Y'] = f'{coordinates_text[0][1]}'

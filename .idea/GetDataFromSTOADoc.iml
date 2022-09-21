@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/utilities/poppler-22.04.0" />
       <excludeFolder url="file://$MODULE_DIR$/test_files" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (pg)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
