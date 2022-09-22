@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, render_template, request, jsonify, send_file
-from core.recognition import process_json, process_json_test
+from core.recognition import process_json, process_json_test, process_file
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ def index():
 def upload_file():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        return send_file(process_json_test(uploaded_file.filename))
+        return send_file(process_file(uploaded_file))
     else:
         return render_template('index.html')
 

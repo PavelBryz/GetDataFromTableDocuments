@@ -21,3 +21,14 @@ def find_angle(contour: ContourOfTable) -> float:
     if contour.down_right[1] > contour.top_left[1]:
         angle = -angle - 0.1
     return angle
+
+
+def find_box(counter):
+    _, _, w, h = cv2.boundingRect(counter)
+    rect = cv2.minAreaRect(counter)  # пытаемся вписать прямоугольник
+    box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
+    box = np.int0(box)  # округление координат
+    box = np.sort(box, axis=0)
+    return box, w, h
+
+

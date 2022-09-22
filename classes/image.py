@@ -1,14 +1,27 @@
+from typing import Union
+
 import cv2
 import numpy as np
+from numpy import ndarray
+from werkzeug.datastructures import FileStorage
+from utilities.helpers import find_box
 
 from classes.contour import Contour, ContourOfTable
 
+OPERATION_TYPE_TABLE = 0
+OPERATION_TYPE_TEXT = 1
+
 
 class Image:
-    def __init__(self, file_path: str):
-        self.image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)  # ToDo Read in grayscale
+    def __init__(self, file: Union[ndarray, str]):
+        if isinstance(file, str):
+            self.image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+        elif isinstance(file, ndarray):
+            self.image = cv2.cvtColor(file, cv2.COLOR_BGR2GRAY)
+        else:
+            raise ValueError("Incorrect input type")
 
-        self.counters = None
+        self.counters = []
 
         # self.resize()
 
@@ -48,45 +61,34 @@ class Image:
 
     def crop_image(self, counter: Contour):
         crop = self.image[counter.top_left[1]: counter.top_left[1] + counter.get_height(),
-                          counter.top_left[0]: counter.top_left[0] + counter.get_wight()]
+               counter.top_left[0]: counter.top_left[0] + counter.get_wight()]
         return crop
 
-    def contrast_image(self):
+    def contrast_image(self, clipLimit: float = 7.0):
         """
         :return: преобразованный массив цветов каждого пикселя с улучшенной контрастностью
         """
-        # разделяем массив для получения контрастности пикселей
-        lab = cv2.cvtColor(self.image, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
-        # увеличиваем контрастность кадого пикселя
-        clahe = cv2.createCLAHE(clipLimit=7.0, tileGridSize=(8, 8))
-        cl = clahe.apply(l)
-        # объединяем назад в один массив
-        limg = cv2.merge((cl, a, b))
-        self.image = cv2.cvtColor(limg, cv2.COLOR_Lab2BGR)
+        clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=(8, 8))
+        self.image = clahe.apply(self.image)
 
-    def find_counters(self, iter=False):
+
+    def find_counters(self, type_of_operation):
         thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-        if iter:
+        if type_of_operation == OPERATION_TYPE_TEXT:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (35, 1))
             thresh = cv2.dilate(thresh, kernel, iterations=1)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for counter in counters:
-            _, _, w, h = cv2.boundingRect(counter)
-            rect = cv2.minAreaRect(counter)  # пытаемся вписать прямоугольник
-            box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
-            box = np.int0(box)  # округление координат
-            box = np.sort(box, axis=0)
+            box, w, h = find_box(counter)
             if box[0][0] == 0 or box[0][1] == 0 or w == 0 or h == 0: continue
-            if iter:
+            if type_of_operation == OPERATION_TYPE_TEXT:
                 if abs(box[2][1] - box[0][1]) < 5 or abs(box[2][0] - box[0][0]) < 50: continue
-                self.counters.append(ContourOfTable(box))
+                self.counters.append(Contour(box))
             else:
                 # нахождение точек таким образом мы можем найти прямоугольники и определить их длину
                 sm = cv2.arcLength(counter, True)
                 apd = cv2.approxPolyDP(counter, 0.01 * sm, True)
 
-                if (4 > len(apd) or len(apd) > 6) or w <= 50 or h <= 30: continue
-
-                self.counters.append(Contour(box))
+                if len(apd) != 4 or w <= 50 or h <= 30: continue
+                self.counters.append(ContourOfTable(box))

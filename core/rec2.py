@@ -606,14 +606,14 @@ if __name__ == '__main__':
                         share_counters_in_table = share_counters(find_counters_in_table)
                         sorted_counters_in_table = sorted_counters(share_counters_in_table)
                         resize_img_standard = resize_array_images(sorted_counters_in_table, resize, 'standard')
-                        resize_img_contrast = resize_array_images(sorted_counters_in_table, resize, 'contrast')
-                        TRUNC_tresh_1, TRUNC_dst_1 = processing_image(resize_img_contrast, 2, 145)
                         TOZERO_tresh_1, TOZERO_dst_1 = processing_image(resize_img_standard, 3, 180)
-                        TRUNC_tresh_2, TRUNC_dst_2 = processing_image(resize_img_contrast, 2, 220)
                         TOZERO_tresh_2, TOZERO_dst_2 = processing_image(resize_img_standard, 3, 150)
                         TRUNC_tresh_3, TRUNC_dst_3 = processing_image(resize_img_standard, 2, 145)
-                        TOZERO_tresh_3, TOZERO_dst_3 = processing_image(resize_img_contrast, 3, 180)
                         TRUNC_tresh_4, TRUNC_dst_4 = processing_image(resize_img_standard, 2, 220)
+                        resize_img_contrast = resize_array_images(sorted_counters_in_table, resize, 'contrast')
+                        TRUNC_tresh_1, TRUNC_dst_1 = processing_image(resize_img_contrast, 2, 145)
+                        TRUNC_tresh_2, TRUNC_dst_2 = processing_image(resize_img_contrast, 2, 220)
+                        TOZERO_tresh_3, TOZERO_dst_3 = processing_image(resize_img_contrast, 3, 180)
                         TOZERO_tresh_4, TOZERO_dst_4 = processing_image(resize_img_contrast, 3, 150)
                         unification_array_img = unification_arrays(TRUNC_tresh_1, TRUNC_dst_1, TOZERO_tresh_1,
                                                                    TOZERO_dst_1,
