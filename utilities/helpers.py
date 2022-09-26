@@ -1,7 +1,6 @@
-import numpy as np
 import cv2
-import math
-from classes.contour import ContourOfTable
+import numpy as np
+
 
 def angle_transform(el):
     if el > 80: el -= 90

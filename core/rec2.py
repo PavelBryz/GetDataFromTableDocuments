@@ -187,7 +187,7 @@ def find_counters(image, standard_image, iter=False, table=False):
         elif table:
             for coordinates in [my_data]:
                 if abs(my_data[2][1] - my_data[0][1]) >= 12 and abs(
-                        my_data[2][0] - my_data[0][0]) >= 40 and w < weight and h < height:
+                        my_data[2][0] - my_data[0][0]) >= 40 and w < weight and h < height:  # ToDO В какаой ситуации это нг сработает and (w < weight and h < height)
                     all_counters.append(Counter(coordinates, w, h, standard_image, image, 0))
 
         else:
@@ -593,7 +593,7 @@ if __name__ == '__main__':
             image_contrast = contrast_image(single_image, 7.0)
             # Находим таблицы на изображении
             tables_on_image = find_counters(image_contrast[0], image_contrast[1])
-            share_counters_tables = share_counters(tables_on_image)
+            share_counters_tables = share_counters(tables_on_image)  # ToDo share_counters не меняет состояния. Странно вызывать её перед проверкой на пустой массив
             if len(share_counters_tables) != 0:
                 sorted_counters_tables = np.hstack(sorted_counters(share_counters_tables))
                 #  Производим распознавание текста и удаление таблицы с изображения

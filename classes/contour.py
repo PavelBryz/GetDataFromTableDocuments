@@ -25,7 +25,7 @@ class Contour:
                min(self.top_left[1], self.top_right[1], self.down_left[1], self.down_right[1])
 
     def __repr__(self) -> str:
-        return f"{self.top_left[1]}"
+        return f"{self.top_left}"
 
     def __lt__(self, other) -> bool:
         return self.top_left[1] < other.top_left[1]
@@ -61,24 +61,35 @@ class Contour:
         return coordinate_array
 
 
-class ContourOfTable(Contour):
+class ContourOfCell(Contour):
     column = None
 
     def __init__(self, box):
         super().__init__(box)
 
     def __repr__(self) -> str:
-        return f"{self.top_left[1]}|{self.column}"
+        return f"{self.top_left}|{self.column}"
 
     @staticmethod
-    def share_counters(array_counters: List[Type['ContourOfTable']]) -> None:
+    def set_rows(array_counters: List[Type['ContourOfCell']]) -> None:
         col = 0
 
-        array = [y for y in array_counters if y.column is None]
-        while array.__len__() > 0:
+
+        while [y for y in array_counters if y.column is None].__len__() > 0:
             col += 1
-            min_y = min(array).top_left[1]
+            array = [y for y in array_counters if y.column is None]
+            min_y = int(min(array).top_left[1])
             col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 15)]
             for el in col_y:
                 el.column = col
-                el.top_left[1] = min_y
+                el.top_left = (el.top_left[0], min_y)
+
+    @staticmethod
+    def sort_contours(contours: List[Type['ContourOfCell']]) -> List[Type['ContourOfCell']]:
+        array_all = []  # массив внутри которого другие массивы
+
+        for counter in contours:
+            our_counters_part = sorted(counter, key=lambda counter: [counter.top_left_y_sorted, counter.top_left_x])
+            array_all.append(our_counters_part)
+
+        return array_all
