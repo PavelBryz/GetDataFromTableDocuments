@@ -328,7 +328,7 @@ def processing_image(array_images, method, threshhold):
             if black_pic != 0:
                 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-                kernel = np.array([[-1, -1, -1],
+                kernel = np.array([[-1, -1, -1],  # ToDO Should be static
                                    [-1, 9, -1],
                                    [-1, -1, -1]])
                 image_ke = cv2.filter2D(gray, -1, kernel)  # увеличиваем резкость

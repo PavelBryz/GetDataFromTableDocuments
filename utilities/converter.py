@@ -7,8 +7,7 @@ import numpy as np
 from werkzeug.datastructures import FileStorage
 
 
-POPPLER_PATH = r'C:\Users\Bryzgalov.Pavel\Documents\Общее\Разработка\GetDataFromSTOADoc\utilities\poppler-22.04.0' \
-               r'\Library\bin '
+POPPLER_PATH = r'C:\Users\Bryzgalov.Pavel\Documents\Общее\Разработка\GetDataFromSTOADoc\utilities\poppler-22.04.0\Library\bin'
 
 
 def convert_to_base64(file_path):

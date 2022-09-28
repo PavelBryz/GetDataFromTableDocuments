@@ -18,3 +18,31 @@ def find_box(counter):
     return box, w, h
 
 
+def text_on_image_replace(text_on_image):
+    text_on_image = text_on_image.replace("\n", " ").strip()
+    a = ['___', '>', '<', '^', '=', '—', '©', '«', '`', "'", ';', '»', ']', '[', '’', "|", '_', '}', '{', '°', 'o']
+    for j in a:
+        if len(text_on_image) == 0:
+            pass
+        elif j == '—':
+            text_on_image = text_on_image.replace(j, '-')
+            if text_on_image[0] == '-':
+                text_on_image = text_on_image.replace('-', '')
+            elif text_on_image[-1] == '-':
+                text_on_image = text_on_image.replace('-', '')
+        elif text_on_image[-3:-2] == '.':
+            text_on_image = text_on_image.replace('.', ',')
+        elif text_on_image[-1] == '/':
+            text_on_image = text_on_image.replace('/', '')
+        elif text_on_image[0] == '-' or text_on_image[-1] == '-':
+            text_on_image = text_on_image.replace('-', '')
+        elif text_on_image[-1] == '.':
+            text_on_image = text_on_image.replace('.', '')
+        elif text_on_image[0] == ',':
+            text_on_image = text_on_image[1:]
+        elif text_on_image[-1] == ',':
+            text_on_image = text_on_image[:-1]
+        else:
+            text_on_image = text_on_image.replace(j, '')
+        text_on_image = text_on_image.replace("\n", " ").strip()
+    return text_on_image

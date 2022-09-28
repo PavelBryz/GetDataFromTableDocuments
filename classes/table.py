@@ -1,17 +1,16 @@
+from typing import Union
+
 import cv2
 from numpy import ndarray
 
 from classes.contour import ContourOfCell
+from classes.image import Image
 from utilities.helpers import find_box
 
-from extensions.displayable import Displayable
-from extensions.resizeable import Resizeable
-from extensions.drawable import Drawable
 
-
-class Table(Displayable, Resizeable, Drawable):
-    def __init__(self, image: ndarray):
-        self.image = image
+class Table(Image):
+    def __init__(self, file: Union[ndarray, str]):
+        super().__init__(file)
         self.cells = []
         
     def find_counters(self):
@@ -20,6 +19,10 @@ class Table(Displayable, Resizeable, Drawable):
 
         for counter in counters:
             box, w, h = find_box(counter)
-            if box[0][0] == 0 or box[0][1] == 0 or w == 0 or h == 0: continue
-            if abs(box[2][1] - box[0][1]) < 12 or abs(box[2][0] - box[0][0]) < 40: continue
+            if box[0][0] == 0 or box[0][1] == 0 or w <= 5 or h <= 5: continue
+            if box[0][0] < 0 or box[0][1] < 0 or \
+               box[1][0] < 0 or box[1][1] < 0 or \
+               box[2][0] < 0 or box[2][1] < 0 or \
+               box[3][0] < 0 or box[3][1] < 0: continue
+            if (1 < abs(box[2][1] - box[0][1]) < 24) or (1 < abs(box[2][0] - box[0][0]) < 80): continue
             self.cells.append(ContourOfCell(box))

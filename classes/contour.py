@@ -28,16 +28,16 @@ class Contour:
         return f"{self.top_left}"
 
     def __lt__(self, other) -> bool:
-        return self.top_left[1] < other.top_left[1]
+        return self.top_left[0] + self.top_left[1] < other.top_left[0] + other.top_left[1]
 
     def __le__(self, other) -> bool:
-        return self.top_left[1] <= other.top_left[1]
+        return self.top_left[0] + self.top_left[1] <= other.top_left[0] + other.top_left[1]
 
     def __gt__(self, other) -> bool:
-        return self.top_left[1] > other.top_left[1]
+        return self.top_left[0] + self.top_left[1] > other.top_left[0] + other.top_left[1]
 
     def __ge__(self, other) -> bool:
-        return self.top_left[1] >= other.top_left[1]
+        return self.top_left[0] + self.top_left[1] >= other.top_left[0] + other.top_left[1]
 
     def __eq__(self, other) -> bool:
         return self.top_left == other.top_left and self.top_right == other.top_right and \
@@ -63,33 +63,97 @@ class Contour:
 
 class ContourOfCell(Contour):
     column = None
+    row = None
+    text = None
 
     def __init__(self, box):
         super().__init__(box)
 
     def __repr__(self) -> str:
-        return f"{self.top_left}|{self.column}"
+        return f"r={self.row}|c={self.column}|text={self.text}"
+
+    @staticmethod
+    def set_columns(array_counters: List[Type['ContourOfCell']]) -> None:
+        row = 0
+
+        while [y for y in array_counters if y.row is None].__len__() > 0:
+            row += 1
+            array = [y for y in array_counters if y.row is None]
+            min_y = int(min(array).top_left[1])
+            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
+            for el in col_y:
+                el.row = row
+                el.top_left = (el.top_left[0], min_y)
 
     @staticmethod
     def set_rows(array_counters: List[Type['ContourOfCell']]) -> None:
         col = 0
 
-
-        while [y for y in array_counters if y.column is None].__len__() > 0:
+        while [x for x in array_counters if x.column is None].__len__() > 0:
             col += 1
-            array = [y for y in array_counters if y.column is None]
-            min_y = int(min(array).top_left[1])
-            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 15)]
-            for el in col_y:
+            array = [x for x in array_counters if x.column is None]
+            min_x = int(min(array).top_left[0])
+            col_x = [x for x in array if (abs(x.top_left[0] - min_x) <= 5)]
+            for el in col_x:
                 el.column = col
-                el.top_left = (el.top_left[0], min_y)
+                el.top_left = (min_x, el.top_left[1])
+
 
     @staticmethod
     def sort_contours(contours: List[Type['ContourOfCell']]) -> List[Type['ContourOfCell']]:
-        array_all = []  # массив внутри которого другие массивы
+        return sorted(contours, key=lambda counter: [counter.row, counter.column])
 
-        for counter in contours:
-            our_counters_part = sorted(counter, key=lambda counter: [counter.top_left_y_sorted, counter.top_left_x])
-            array_all.append(our_counters_part)
 
-        return array_all
+class ContourOfTable(Contour):
+    number = None
+
+    def __init__(self, box):
+        super().__init__(box)
+
+    def __repr__(self) -> str:
+        return f"{self.top_left}|n={self.number}"
+
+    @staticmethod
+    def set_numbers(array_counters: List[Type['ContourOfTable']]) -> None:
+        number = 0
+
+        while [y for y in array_counters if y.number is None].__len__() > 0:
+            number += 1
+            array = [y for y in array_counters if y.number is None]
+            min_y = int(min(array).top_left[1])
+            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
+            for el in col_y:
+                el.number = number
+                el.top_left = (el.top_left[0], min_y)
+
+    @staticmethod
+    def sort_contours(contours: List[Type['ContourOfTable']]) -> List[Type['ContourOfTable']]:
+        return sorted(contours, key=lambda counter: [counter.number])
+
+
+class ContourOfLine(Contour):
+    number = None
+
+    def __init__(self, box):
+        super().__init__(box)
+
+    def __repr__(self) -> str:
+        return f"{self.top_left}|n={self.number}"
+
+    @staticmethod
+    def set_numbers(array_counters: List[Type['ContourOfLine']]) -> None:
+        number = 0
+
+        while [y for y in array_counters if y.number is None].__len__() > 0:
+            number += 1
+            array = [y for y in array_counters if y.number is None]
+            min_y = int(min(array).top_left[1])
+            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
+            for el in col_y:
+                el.number = number
+                el.top_left = (el.top_left[0], min_y)
+
+    @staticmethod
+    def sort_contours(contours: List[Type['ContourOfLine']]) -> List[Type['ContourOfLine']]:
+        return sorted(contours, key=lambda counter: [counter.number])
+
