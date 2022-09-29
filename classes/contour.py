@@ -1,5 +1,9 @@
+import itertools
+
 import numpy as np
 from typing import Type, List
+
+from classes.textProcessor import TextProcessor
 
 
 class Contour:
@@ -64,10 +68,12 @@ class Contour:
 class ContourOfCell(Contour):
     column = None
     row = None
+    text_processor = None
     text = None
 
     def __init__(self, box):
         super().__init__(box)
+        self.text_processor = TextProcessor()
 
     def __repr__(self) -> str:
         return f"r={self.row}|c={self.column}|text={self.text}"
@@ -130,15 +136,25 @@ class ContourOfTable(Contour):
     def sort_contours(contours: List[Type['ContourOfTable']]) -> List[Type['ContourOfTable']]:
         return sorted(contours, key=lambda counter: [counter.number])
 
+    @staticmethod
+    def filter_contours(contours: List[Type['ContourOfTable']]) -> List[Type['ContourOfTable']]:
+        for base_contour, compare_with in itertools.combinations(contours, 2):
+            base_contour.is_inside(compare_with)
+
+        return list(filter(lambda x: x.count_inner == 0, contours))
+
 
 class ContourOfLine(Contour):
     number = None
+    text_processor = None
+    text = None
 
     def __init__(self, box):
         super().__init__(box)
+        self.text_processor = TextProcessor()
 
     def __repr__(self) -> str:
-        return f"{self.top_left}|n={self.number}"
+        return f"n={self.number}|t={self.text}"
 
     @staticmethod
     def set_numbers(array_counters: List[Type['ContourOfLine']]) -> None:

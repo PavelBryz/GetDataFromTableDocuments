@@ -8,7 +8,7 @@ from classes.image import Image
 from utilities.helpers import find_box
 
 
-class Table(Image):
+class TableImage(Image):
     def __init__(self, file: Union[ndarray, str]):
         super().__init__(file)
         self.cells = []

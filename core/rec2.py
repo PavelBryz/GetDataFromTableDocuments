@@ -481,7 +481,7 @@ def unification_single(TRUNC_tresh_1, TRUNC_dst_1, TOZERO_tresh_1, TOZERO_dst_1,
     return test
 
 
-def append_table(array):
+def append_table(array):  # ToDo np.zeros?
     max_len = max(map(len, array))
     for i in array:
         while len(i) < max_len:

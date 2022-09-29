@@ -31,14 +31,8 @@ class Recognizer:
         text_on_image = tesserocr.image_to_text(image, lang="cor+cog", path=r'C:\Users\Bryzgalov.Pavel\AppData\Local\Tesseract-OCR\tessdata')
         text_on_image = text_on_image_replace(text_on_image)
 
-        if len(text_on_image) == 0:
-            return 'не распознал'
-        if text_on_image.lower() == 'nn' or text_on_image.lower() == 'пп':
-            return 'ПП'
-        elif text_on_image.lower() == 'wt':
-            return 'шт'
-        else:
-            return text_on_image
+        if len(text_on_image) == 0: return 'Не распознал'
+        return text_on_image
 
     @staticmethod
     def processing_image(image: ndarray, method, threshold, type_of_operation):

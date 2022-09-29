@@ -1,8 +1,8 @@
 import pandas as pd
 
 
-from classes.contour import ContourOfCell, ContourOfTable
-from classes.page import Page
+from classes.contour import ContourOfCell, ContourOfTable, ContourOfLine
+from classes.pageImage import PageImage
 
 
 class Data:
@@ -16,7 +16,8 @@ class Data:
             'Колонка': pd.Series(dtype='int'),
             'Номер строки': pd.Series(dtype='int'),
             'Текст': pd.Series(dtype='str'),
-            'Координаты': pd.Series(dtype='str')})
+            'Координаты': pd.Series(dtype='str'),
+            'КоординатаДляСортировки': pd.Series(dtype='int')})
 
     def add_cell(self, cell: ContourOfCell, table: ContourOfTable, page: int, filr_id: str):
         self.df = self.df.append({
@@ -28,4 +29,18 @@ class Data:
             'Колонка': cell.column,
             'Номер строки': 0,
             'Текст': cell.text,
-            'Координаты': str([table.top_left, table.down_right])}, ignore_index=True)
+            'Координаты': str([table.top_left, table.down_right]),
+            'КоординатаДляСортировки': table.top_left[1]}, ignore_index=True)
+
+    def add_line(self, line: ContourOfLine, page: int, filr_id: str):
+        self.df = self.df.append({
+            'Счет': filr_id,
+            'Номер страницы': page,
+            'Вид объекта': "Строка",
+            'Номер таблицы': 0,
+            'Строка': 0,
+            'Колонка': 0,
+            'Номер строки': line.number,
+            'Текст': line.text,
+            'Координаты': str([line.top_left, line.down_right]),
+            'КоординатаДляСортировки': line.top_left[1]}, ignore_index=True)
