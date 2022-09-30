@@ -23,15 +23,24 @@ class PageImage(Image):
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+        # if len(self.image.shape) == 2:
+        #     self.image = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
+        #
+        # ct = []
         angles = np.array([])
         for counter in counters:
             rect = cv2.minAreaRect(counter)
             sm = cv2.arcLength(counter, True)
-            if sm <= 1000: continue
+            approx = cv2.approxPolyDP(counter, 0.01 * sm, True)
+            if sm <= 1000 or len(approx) != 4: continue
             angles = np.append(angles, rect[2])
+        #     ct.append(counter)
+        #
+        # self.image = cv2.drawContours(self.image, ct, -1, (0, 0, 255), 1, cv2.LINE_8)
+        # self.display()
 
         vf = np.vectorize(angle_transform)
-        angles = vf(angles[(angles > 80) | ((angles < 10) & (angles > -10)) | (angles < -80)])
+        angles = vf(angles[(angles > 80) | ((angles < 2) & (angles > -2)) | (angles < -80)])
 
         height, width = self.get_width_height()
         center = (int(width / 2), int(height / 2))
@@ -75,14 +84,24 @@ class PageImage(Image):
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for counter in counters:
-            box, w, h = find_box(counter)
+            _, _, w, h = cv2.boundingRect(counter)
+            rect = cv2.minAreaRect(counter)  # пытаемся вписать прямоугольник
+            box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
+            box = np.int0(box)  # округление координат
+            box = np.sort(box, axis=0)
+
             if box[0][0] == 0 or box[0][1] == 0 or w == 0 or h == 0: continue
+            if box[0][0] < 0 or box[0][1] < 0 or \
+               box[1][0] < 0 or box[1][1] < 0 or \
+               box[2][0] < 0 or box[2][1] < 0 or \
+               box[3][0] < 0 or box[3][1] < 0: continue
+
             if type_of_operation == OPERATION_TYPE_TEXT:
                 if abs(box[2][1] - box[0][1]) < 5 or abs(box[2][0] - box[0][0]) < 50: continue
                 self.counters.append(ContourOfLine(box))
             else:
                 # нахождение точек таким образом мы можем найти прямоугольники и определить их длину
                 sm = cv2.arcLength(counter, True)
-                apd = cv2.approxPolyDP(counter, 0.01 * sm, True)
-                if 6 <= len(apd) <= 4 or w <= 50 or h <= 30: continue
+                approx = cv2.approxPolyDP(counter, 0.01 * sm, True)
+                if sm <= 1000 or len(approx) != 4: continue
                 self.counters.append(ContourOfTable(box))

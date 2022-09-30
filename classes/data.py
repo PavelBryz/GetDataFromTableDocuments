@@ -44,3 +44,7 @@ class Data:
             'Текст': line.text,
             'Координаты': str([line.top_left, line.down_right]),
             'КоординатаДляСортировки': line.top_left[1]}, ignore_index=True)
+
+    def sort(self):
+        self.df = self.df.sort_values(by=['Номер страницы', 'КоординатаДляСортировки', 'Номер таблицы', 'Строка','Колонка','Номер строки'])
+        # self.df = self.df.drop('КоординатаДляСортировки')

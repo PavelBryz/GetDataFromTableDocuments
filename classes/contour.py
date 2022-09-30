@@ -79,30 +79,30 @@ class ContourOfCell(Contour):
         return f"r={self.row}|c={self.column}|text={self.text}"
 
     @staticmethod
-    def set_columns(array_counters: List[Type['ContourOfCell']]) -> None:
+    def set_rows(array_counters: List[Type['ContourOfCell']]) -> None:
         row = 0
 
         while [y for y in array_counters if y.row is None].__len__() > 0:
             row += 1
             array = [y for y in array_counters if y.row is None]
             min_y = int(min(array).top_left[1])
-            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
+            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 20)]
             for el in col_y:
                 el.row = row
                 el.top_left = (el.top_left[0], min_y)
 
     @staticmethod
-    def set_rows(array_counters: List[Type['ContourOfCell']]) -> None:
+    def set_columns(array_counters: List[Type['ContourOfCell']]) -> None:
         col = 0
 
-        while [x for x in array_counters if x.column is None].__len__() > 0:
+        while [y for y in array_counters if y.column is None].__len__() > 0:
             col += 1
-            array = [x for x in array_counters if x.column is None]
-            min_x = int(min(array).top_left[0])
-            col_x = [x for x in array if (abs(x.top_left[0] - min_x) <= 5)]
-            for el in col_x:
+            array = [y for y in array_counters if y.column is None]
+            min_y = int(min(array).top_left[0])
+            col_y = [x for x in array if (abs(x.top_left[0] - min_y) <= 10)]
+            for el in col_y:
                 el.column = col
-                el.top_left = (min_x, el.top_left[1])
+                el.top_left = (min_y, el.top_left[1])
 
 
     @staticmethod
