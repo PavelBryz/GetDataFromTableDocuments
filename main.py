@@ -2,8 +2,31 @@ import json
 
 from flask import Flask, render_template, request, jsonify, send_file
 from core.recognition import process_json, process_json_test, process_file
+from flask_socketio import emit
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+# socketio = SocketIO(app)
+#
+# thread = None
+#
+#
+# def progress_update():
+#     for i in range(5):
+#         socketio.sleep(1)
+#         socketio.emit("progress", {"text": 25 * i})
+#         print("progress")
+#
+#
+# @socketio.on("connect")
+# def test_connect():
+#     print("connect")
+#     socketio.start_background_task(target=progress_update)
+#
+#
+# @socketio.on("disconnect")
+# def test_disconnect():
+#     print("disconnect")
 
 
 @app.route('/')
@@ -40,4 +63,6 @@ def get_text_test():
 
 
 if __name__ == '__main__':
+    # socketio.run(app, host='10.77.144.64', port=8000, debug=True)
     app.run(debug=True, host='10.77.144.64', port=8000)
+1

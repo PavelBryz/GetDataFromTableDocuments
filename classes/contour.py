@@ -28,6 +28,16 @@ class Contour:
         return max(self.top_left[1], self.top_right[1], self.down_left[1], self.down_right[1]) - \
                min(self.top_left[1], self.top_right[1], self.down_left[1], self.down_right[1])
 
+    @staticmethod
+    def get_wight_static(box):
+        return max(box[0][0], box[1][0], box[2][0], box[3][0]) - \
+               min(box[0][0], box[1][0], box[2][0], box[3][0])
+
+    @staticmethod
+    def get_height_static(box):
+        return max(box[0][1], box[1][1], box[2][1], box[3][1]) - \
+               min(box[0][1], box[1][1], box[2][1], box[3][1])
+
     def __repr__(self) -> str:
         return f"{self.top_left}"
 
@@ -85,11 +95,11 @@ class ContourOfCell(Contour):
         while [y for y in array_counters if y.row is None].__len__() > 0:
             row += 1
             array = [y for y in array_counters if y.row is None]
-            min_y = int(min(array).top_left[1])
+            min_y = int(min([y.top_left[1] for y in array]))
             col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 20)]
             for el in col_y:
                 el.row = row
-                el.top_left = (el.top_left[0], min_y)
+                # el.top_left = (el.top_left[0], min_y)
 
     @staticmethod
     def set_columns(array_counters: List[Type['ContourOfCell']]) -> None:
@@ -98,16 +108,22 @@ class ContourOfCell(Contour):
         while [y for y in array_counters if y.column is None].__len__() > 0:
             col += 1
             array = [y for y in array_counters if y.column is None]
-            min_y = int(min(array).top_left[0])
-            col_y = [x for x in array if (abs(x.top_left[0] - min_y) <= 10)]
-            for el in col_y:
+            min_x = int(min([y.top_left[0] for y in array]))
+            col_x = [x for x in array if (abs(x.top_left[0] - min_x) <= 10)]
+            for el in col_x:
                 el.column = col
-                el.top_left = (min_y, el.top_left[1])
+                # el.top_left = (min_y, el.top_left[1])
 
 
     @staticmethod
     def sort_contours(contours: List[Type['ContourOfCell']]) -> List[Type['ContourOfCell']]:
         return sorted(contours, key=lambda counter: [counter.row, counter.column])
+
+    @staticmethod
+    def filter_contours(contours: List[Type['ContourOfTable']]) -> List[Type['ContourOfTable']]:
+        for base_contour, compare_with in itertools.combinations(contours, 2):
+            base_contour.is_inside(compare_with)
+        return list(filter(lambda x: x.count_inner == 0, contours))
 
 
 class ContourOfTable(Contour):
@@ -126,11 +142,11 @@ class ContourOfTable(Contour):
         while [y for y in array_counters if y.number is None].__len__() > 0:
             number += 1
             array = [y for y in array_counters if y.number is None]
-            min_y = int(min(array).top_left[1])
+            min_y = int(min([y.top_left[1] for y in array]))
             col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
             for el in col_y:
                 el.number = number
-                el.top_left = (el.top_left[0], min_y)
+                # el.top_left = (el.top_left[0], min_y)
 
     @staticmethod
     def sort_contours(contours: List[Type['ContourOfTable']]) -> List[Type['ContourOfTable']]:
@@ -163,11 +179,11 @@ class ContourOfLine(Contour):
         while [y for y in array_counters if y.number is None].__len__() > 0:
             number += 1
             array = [y for y in array_counters if y.number is None]
-            min_y = int(min(array).top_left[1])
+            min_y = int(min([y.top_left[1] for y in array]))
             col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
             for el in col_y:
                 el.number = number
-                el.top_left = (el.top_left[0], min_y)
+                # el.top_left = (el.top_left[0], min_y)
 
     @staticmethod
     def sort_contours(contours: List[Type['ContourOfLine']]) -> List[Type['ContourOfLine']]:

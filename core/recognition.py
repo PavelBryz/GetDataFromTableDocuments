@@ -65,7 +65,7 @@ def process_file(file: FileStorage):
                     cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 220, TYPE_THRESHOLD))
 
                     cl.text = cl.text_processor.get_result()
-                    print(f"{i}|{cl}")
+                    print(f"file={file.filename}|{i}|{cl}")
 
                     data.add_cell(cl, ctr, i, file.filename)
 
@@ -85,7 +85,7 @@ def process_file(file: FileStorage):
                 ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 220, TYPE_THRESHOLD))
 
                 ln.text = ln.text_processor.get_result()
-                print(f"{i}|{ln}")
+                print(f"file={file.filename}|{i}|{ln}")
 
                 data.add_line(ln, i, file.filename)
 
