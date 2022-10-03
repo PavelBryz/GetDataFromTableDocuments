@@ -40,6 +40,7 @@ class PageImage(Image):
         # self.display()
 
         vf = np.vectorize(angle_transform)
+        if angles.size == 0: return
         angles = vf(angles[(angles > 80) | ((angles < 2) & (angles > -2)) | (angles < -80)])
 
         height, width = self.get_width_height()
@@ -83,6 +84,8 @@ class PageImage(Image):
             thresh = cv2.dilate(thresh, kernel, iterations=1)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+        height, width = self.get_width_height()
+
         for counter in counters:
             _, _, w, h = cv2.boundingRect(counter)
             rect = cv2.minAreaRect(counter)  # пытаемся вписать прямоугольник
@@ -103,5 +106,6 @@ class PageImage(Image):
                 # нахождение точек таким образом мы можем найти прямоугольники и определить их длину
                 sm = cv2.arcLength(counter, True)
                 approx = cv2.approxPolyDP(counter, 0.01 * sm, True)
-                if sm <= 1000 or len(approx) != 4: continue
+
+                if w < (width * 0.05) or len(approx) != 4: continue
                 self.counters.append(ContourOfTable(box))

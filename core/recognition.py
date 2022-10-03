@@ -60,14 +60,14 @@ def process_file(file: FileStorage):
                     cell = CellImage(tbl.crop_image(cl))
 
                     cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 3, 180, TYPE_THRESHOLD))
-                    # cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 3, 150, TYPE_THRESHOLD))
-                    # cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 145, TYPE_THRESHOLD))
-                    # cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 220, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 3, 150, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 145, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 220, TYPE_THRESHOLD))
 
                     cl.text = cl.text_processor.get_result()
-                    print(cl)
+                    print(f"{i}|{cl}")
 
-                    data.add_cell(cl, ctr, i, img)
+                    data.add_cell(cl, ctr, i, file.filename)
 
             im.erase_tables()
 
@@ -80,15 +80,16 @@ def process_file(file: FileStorage):
                 line.resize(2)
 
                 ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 3, 180, TYPE_THRESHOLD))
-                # ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 3, 150, TYPE_THRESHOLD))
-                # ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 145, TYPE_THRESHOLD))
-                # ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 220, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 3, 150, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 145, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 220, TYPE_THRESHOLD))
 
                 ln.text = ln.text_processor.get_result()
-                print(ln)
+                print(f"{i}|{ln}")
 
-                data.add_line(ln, i, img)
+                data.add_line(ln, i, file.filename)
 
+        data.sort()
         data.df.to_excel("res.xlsx")
     return "res.xlsx"
 
