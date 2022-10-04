@@ -59,10 +59,12 @@ def process_file(file: FileStorage):
                 for cl in tbl.cells:
                     cell = CellImage(tbl.crop_image(cl))
 
-                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 3, 180, TYPE_THRESHOLD))
-                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 3, 150, TYPE_THRESHOLD))
-                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 145, TYPE_THRESHOLD))
-                    cl.text_processor.add_with_filter(Recognizer.processing_image(cell.image, 2, 220, TYPE_THRESHOLD))
+                    rec = Recognizer(cell.image)
+
+                    cl.text_processor.add_with_filter(rec.processing_image(3, 180, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(rec.processing_image(3, 150, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(rec.processing_image(2, 145, TYPE_THRESHOLD))
+                    cl.text_processor.add_with_filter(rec.processing_image(2, 220, TYPE_THRESHOLD))
 
                     cl.text = cl.text_processor.get_result()
                     print(f"file={file.filename}|{i}|{cl}")
@@ -79,10 +81,12 @@ def process_file(file: FileStorage):
                 line = LineImage(im.crop_image(ln))
                 line.resize(2)
 
-                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 3, 180, TYPE_THRESHOLD))
-                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 3, 150, TYPE_THRESHOLD))
-                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 145, TYPE_THRESHOLD))
-                ln.text_processor.add_with_filter(Recognizer.processing_image(line.image, 2, 220, TYPE_THRESHOLD))
+                rec = Recognizer(line.image)
+
+                ln.text_processor.add_with_filter(rec.processing_image(3, 180, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(rec.processing_image(3, 150, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(rec.processing_image(2, 145, TYPE_THRESHOLD))
+                ln.text_processor.add_with_filter(rec.processing_image(2, 220, TYPE_THRESHOLD))
 
                 ln.text = ln.text_processor.get_result()
                 print(f"file={file.filename}|{i}|{ln}")

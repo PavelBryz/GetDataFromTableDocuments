@@ -19,27 +19,26 @@ TYPE_THRESHOLD: Final[int] = 1
 
 
 class Recognizer:
-    @staticmethod
-    def __is_empty(image: ndarray):
-        _, image = cv2.threshold(image, 200, 255, 0)
+    def __init__(self, image: ndarray):
+        self.image = image
+        self.is_empty = self.__is_empty()
+
+    def __is_empty(self):
+        _, image = cv2.threshold(self.image, 200, 255, 0)
+        #
+        # cv2.imshow('Display', image)
+        # cv2.waitKey(0)
+        #
         percent = np.sum(image == 0) / image.size * 100
-        return percent < 1
+        #
+        # print(f"black={np.sum(image == 0)}| total={image.size}| percent={percent}")
+        return percent < 9
 
-    @staticmethod
-    def __text_on_image_recognition(images):
-        image = PIL.Image.fromarray(np.uint8(cm.gist_earth(images) * 255))
-        text_on_image = tesserocr.image_to_text(image, lang="cor+cog", path=r'C:\Users\Bryzgalov.Pavel\AppData\Local\Tesseract-OCR\tessdata')
-        text_on_image = text_on_image_replace(text_on_image)
-
-        if len(text_on_image) == 0: return 'Не распознал'
-        return text_on_image
-
-    @staticmethod
-    def processing_image(image: ndarray, method, threshold, type_of_operation):
-        if Recognizer.__is_empty(image):
+    def processing_image(self, method, threshold, type_of_operation):
+        if self.is_empty:
             return 'Пусто'
 
-        image_ke = cv2.filter2D(image, -1, KARNEL)  # увеличиваем резкость
+        image_ke = cv2.filter2D(self.image, -1, KARNEL)  # увеличиваем резкость
         thresh = cv2.threshold(image_ke, threshold, 255, method)[1]  # производим обработку threshold
         if type_of_operation == TYPE_ERODE:
             kernel_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
@@ -52,4 +51,11 @@ class Recognizer:
 
         return text
 
+    @staticmethod
+    def __text_on_image_recognition(images):
+        image = PIL.Image.fromarray(np.uint8(cm.gist_earth(images) * 255))
+        text_on_image = tesserocr.image_to_text(image, lang="cor+cog", path=r'C:\Users\Bryzgalov.Pavel\AppData\Local\Tesseract-OCR\tessdata')
+        text_on_image = text_on_image_replace(text_on_image)
 
+        if len(text_on_image) == 0: return 'Не распознал'
+        return text_on_image

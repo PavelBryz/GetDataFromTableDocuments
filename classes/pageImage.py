@@ -80,8 +80,8 @@ class PageImage(Image):
         self.counters = []
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         if type_of_operation == OPERATION_TYPE_TEXT:
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (35, 1))
-            thresh = cv2.dilate(thresh, kernel, iterations=1)
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 10))
+            thresh = cv2.dilate(thresh, kernel, iterations=2)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         height, width = self.get_width_height()
@@ -100,7 +100,10 @@ class PageImage(Image):
                box[3][0] < 0 or box[3][1] < 0: continue
 
             if type_of_operation == OPERATION_TYPE_TEXT:
+                if box[0][1] < 25 or box[2][1] > (height - 25) or box[3][0] < 25 or box[1][0] > (width - 25): continue
                 if abs(box[2][1] - box[0][1]) < 5 or abs(box[2][0] - box[0][0]) < 50: continue
+                if len(counter) < 15 : continue
+
                 self.counters.append(ContourOfLine(box))
             else:
                 # нахождение точек таким образом мы можем найти прямоугольники и определить их длину
