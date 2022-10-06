@@ -41,7 +41,7 @@ class PageImage(Image):
 
         vf = np.vectorize(angle_transform)
         if angles.size == 0: return
-        angles = vf(angles[(angles > 80) | ((angles < 2) & (angles > -2)) | (angles < -80)])
+        angles = vf(angles[((angles > 80) & (angles != 90)) | ((angles < 2) & (angles > -2) & (angles != 0)) | ((angles < -80) & (angles != -90))])
 
         height, width = self.get_width_height()
         center = (int(width / 2), int(height / 2))
