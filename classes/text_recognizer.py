@@ -32,7 +32,7 @@ class Recognizer:
         percent = np.sum(image == 0) / image.size * 100
         #
         # print(f"black={np.sum(image == 0)}| total={image.size}| percent={percent}")
-        return percent < 9
+        return percent < 2
 
     def processing_image(self, method, threshold, type_of_operation):
         if self.is_empty:

@@ -174,16 +174,46 @@ class ContourOfLine(Contour):
 
     @staticmethod
     def set_numbers(array_counters: List[Type['ContourOfLine']]) -> None:
+        array_counters.sort(key=lambda y: y.top_left[1])
+
         number = 0
 
-        while [y for y in array_counters if y.number is None].__len__() > 0:
+        for contuer in array_counters:
             number += 1
-            array = [y for y in array_counters if y.number is None]
-            min_y = int(min([y.top_left[1] for y in array]))
-            col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
-            for el in col_y:
-                el.number = number
-                # el.top_left = (el.top_left[0], min_y)
+            contuer.number = number
+
+        # while [y for y in array_counters if y.number is None].__len__() > 0:
+        #     number += 1
+        #     array = [y for y in array_counters if y.number is None]
+        #     min_y = int(min([y.top_left[1] for y in array]))
+        #     col_y = [y for y in array if (abs(y.top_left[1] - min_y) <= 5)]
+        #     for el in col_y:
+        #         el.number = number
+        #         # el.top_left = (el.top_left[0], min_y)
+
+    @staticmethod
+    def marge_contours(contours: List[Type['ContourOfLine']]) -> List[Type['ContourOfLine']]:
+
+        contours.sort(key=lambda y: y.top_left[1])
+
+        new_contours = [contours[0]]
+        contours.remove(contours[0])
+
+        current_contour = 0
+        while len([y for y in contours]) > 0:
+            if contours[0].top_left[1] - 10 <= new_contours[current_contour].top_left[1] <= contours[0].top_left[1] + 10 or \
+               contours[0].down_right[1] - 10 <= new_contours[current_contour].down_right[1] <= contours[0].down_right[1] + 10:
+                if new_contours[current_contour].top_left[1] > contours[0].top_left[1]:
+                    new_contours[current_contour].top_left = contours[0].top_left
+                if new_contours[current_contour].down_right[1] < contours[0].down_right[1]:
+                    new_contours[current_contour].down_right = contours[0].down_right
+                contours.remove(contours[0])
+            else:
+                new_contours.append(contours[0])
+                current_contour += 1
+                contours.remove(contours[0])
+        return new_contours
+
 
     @staticmethod
     def sort_contours(contours: List[Type['ContourOfLine']]) -> List[Type['ContourOfLine']]:

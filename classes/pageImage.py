@@ -100,7 +100,7 @@ class PageImage(Image):
                box[3][0] < 0 or box[3][1] < 0: continue
 
             if type_of_operation == OPERATION_TYPE_TEXT:
-                if box[0][1] < 25 or box[2][1] > (height - 25) or box[3][0] < 25 or box[1][0] > (width - 25): continue
+                if box[0][1] < 10 or box[2][1] > (height - 10) or box[3][0] < 10 or box[1][0] > (width - 10): continue
                 if abs(box[2][1] - box[0][1]) < 5 or abs(box[2][0] - box[0][0]) < 50: continue
                 if len(counter) < 15 : continue
 
@@ -108,7 +108,7 @@ class PageImage(Image):
             else:
                 # нахождение точек таким образом мы можем найти прямоугольники и определить их длину
                 sm = cv2.arcLength(counter, True)
-                approx = cv2.approxPolyDP(counter, 0.01 * sm, True)
+                approx = cv2.approxPolyDP(counter, 0.02 * sm, True)
 
                 if w < (width * 0.05) or len(approx) != 4: continue
                 self.counters.append(ContourOfTable(box))
