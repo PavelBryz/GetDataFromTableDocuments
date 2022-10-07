@@ -21,7 +21,7 @@ class PageImage(Image):
 
     def rotate(self):
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        counters, hi = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
         # if len(self.image.shape) == 2:
         #     self.image = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
@@ -40,8 +40,9 @@ class PageImage(Image):
         # self.display()
 
         vf = np.vectorize(angle_transform)
+        angles = angles[((angles > 80) & (angles != 90)) | ((angles < 2) & (angles > -2) & (angles != 0)) | ((angles < -80) & (angles != -90))]
         if angles.size == 0: return
-        angles = vf(angles[((angles > 80) & (angles != 90)) | ((angles < 2) & (angles > -2) & (angles != 0)) | ((angles < -80) & (angles != -90))])
+        angles = vf(angles)
 
         height, width = self.get_width_height()
         center = (int(width / 2), int(height / 2))
