@@ -1,3 +1,4 @@
+import math
 from typing import Union
 
 import cv2
@@ -9,10 +10,56 @@ from classes.image import Image
 from utilities.helpers import find_box
 
 
+KERNEL_5 = np.array([[0, 0, 1, 0, 0],
+                     [0, 0, 1, 0, 0],
+                     [1, 1, 1, 1, 1],
+                     [0, 0, 1, 0, 0],
+                     [0, 0, 1, 0, 0]],
+                     dtype='uint8')
+
+KERNEL_3 = np.array([[0, 1, 1],
+                     [1, 1, 1],
+                     [0, 1, 0]],
+                     dtype='uint8')
+
 class TableImage(Image):
     def __init__(self, file: Union[ndarray, str]):
         super().__init__(file)
         self.cells = []
+
+    def draw_lines(self):
+        rho = 2  # distance resolution in pixels of the Hough grid
+        theta = np.pi / 4  # angular resolution in radians of the Hough grid
+        threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+        min_line_length = 10  # minimum number of pixels making up a line
+        max_line_gap = 2  # maximum gap in pixels between connectable line segments
+        line_image = np.copy(self.image) * 0  # creating a blank to draw lines on
+
+        edges = cv2.Canny(self.image, 100, 200, apertureSize=3)
+        edges = cv2.dilate(edges, KERNEL_3, iterations=1)
+
+        # Run Hough on edge detected image
+        # Output "lines" is an array containing endpoints of detected line segments
+        lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
+
+        h_lines = []
+        w_lines = []
+
+        for line in lines:
+            for x1, y1, x2, y2 in line:
+                length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+                if y1 == y2 and length >= self.image.shape[1] / 4 and not len([y for y in h_lines if abs(y - y1) < 10]):
+                    cv2.line(line_image, (0, y1), (self.image.shape[1], y2), (255, 255, 255), 2)
+                    h_lines.append(y1)
+                    # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+                if x1 == x2 and (length >= self.image.shape[0] / 4 or y1 < 10 or y2 < 10) and not len([x for x in w_lines if abs(x - x1) < 10]):
+                    cv2.line(line_image, (x1, 0), (x2, self.image.shape[0]), (255, 255, 255), 2)
+                    w_lines.append(x1)
+                    # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+
+        # Draw the lines on the  image
+        self.image = cv2.addWeighted(self.image, 1, line_image, -1, 0)
         
     def find_counters(self):
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)

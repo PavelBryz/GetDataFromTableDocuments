@@ -47,9 +47,15 @@ def process_file(file: FileStorage):
             ContourOfTable.set_numbers(im.counters)
             im.counters = ContourOfTable.sort_contours(im.counters)
 
+            _, im_width = im.get_width_height()
+
             for ctr in im.counters:
                 tbl = TableImage(im.crop_image(ctr))
                 tbl.resize(2)
+
+                _, tbl_width = tbl.get_width_height()
+                if tbl_width >= im_width / 2:
+                    tbl.draw_lines()
 
                 tbl.find_counters()
                 ContourOfCell.set_rows(tbl.cells)

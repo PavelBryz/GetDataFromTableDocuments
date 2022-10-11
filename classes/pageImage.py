@@ -13,6 +13,7 @@ from utilities.helpers import find_box, angle_transform
 OPERATION_TYPE_TABLE: Final[int] = 0
 OPERATION_TYPE_TEXT: Final[int] = 1
 
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,7))
 
 class PageImage(Image):
     def __init__(self, file: Union[ndarray, str]):
@@ -23,10 +24,6 @@ class PageImage(Image):
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         counters, hi = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-        # if len(self.image.shape) == 2:
-        #     self.image = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
-        #
-        # ct = []
         angles = np.array([])
         for counter in counters:
             rect = cv2.minAreaRect(counter)
@@ -34,13 +31,11 @@ class PageImage(Image):
             approx = cv2.approxPolyDP(counter, 0.01 * sm, True)
             if sm <= 1000 or len(approx) != 4: continue
             angles = np.append(angles, rect[2])
-        #     ct.append(counter)
-        #
-        # self.image = cv2.drawContours(self.image, ct, -1, (0, 0, 255), 1, cv2.LINE_8)
-        # self.display()
 
         vf = np.vectorize(angle_transform)
-        angles = angles[((angles > 80) & (angles != 90)) | ((angles < 2) & (angles > -2) & (angles != 0)) | ((angles < -80) & (angles != -90))]
+        angles = angles[((angles > 80) & (angles != 90)) |
+                        ((angles < 2) & (angles > -2) & (angles != 0)) |
+                        ((angles < -80) & (angles != -90))]
         if angles.size == 0: return
         angles = vf(angles)
 
@@ -79,10 +74,12 @@ class PageImage(Image):
 
     def find_counters(self, type_of_operation):
         self.counters = []
+
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         if type_of_operation == OPERATION_TYPE_TEXT:
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 10))
-            thresh = cv2.dilate(thresh, kernel, iterations=2)
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 10))
+            thresh = cv2.dilate(thresh, kernel, iterations=3)
+            # thresh = cv2.dilate(thresh, kernel, iterations=9)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         height, width = self.get_width_height()
