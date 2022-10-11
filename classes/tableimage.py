@@ -53,7 +53,7 @@ class TableImage(Image):
                     cv2.line(line_image, (0, y1), (self.image.shape[1], y2), (255, 255, 255), 2)
                     h_lines.append(y1)
                     # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                if x1 == x2 and (length >= self.image.shape[0] / 4 or y1 < 10 or y2 < 10) and not len([x for x in w_lines if abs(x - x1) < 10]):
+                if x1 == x2 and (length >= self.image.shape[0] / 4 or ((y1 < 10 or y2 < 10) and length >= self.image.shape[0] / 10)) and not len([x for x in w_lines if abs(x - x1) < 10]):
                     cv2.line(line_image, (x1, 0), (x2, self.image.shape[0]), (255, 255, 255), 2)
                     w_lines.append(x1)
                     # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
@@ -63,7 +63,13 @@ class TableImage(Image):
         
     def find_counters(self):
         _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        # thresh = cv2.dilate(thresh, np.array([[0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [1, 1, 1, 1, 1], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]], dtype='uint8'), iterations=1)
         counters, hi = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+        # image = cv2.cvtColor(thresh, cv2.COLOR_GRAY2RGB)
+        # image_counter2 = cv2.drawContours(image, counters, -1, (0, 0, 255), 1, cv2.LINE_8)
+        # cv2.imshow('Display', image_counter2)
+        # cv2.waitKey(0)
 
         height, width = self.get_width_height()
 
