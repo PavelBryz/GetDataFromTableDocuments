@@ -30,7 +30,11 @@ class Recognizer:
         # cv2.imshow('Display', image)
         # cv2.waitKey(0)
         #
-        percent = np.sum(image == 0) / image.size * 100
+        if image is not None:
+            percent = np.sum(image == 0) / image.size * 100
+        else:
+            return True
+
         #
         # print(f"black={np.sum(image == 0)}| total={image.size}| percent={percent}")
         return percent < 2
