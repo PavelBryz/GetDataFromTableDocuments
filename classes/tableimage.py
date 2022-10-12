@@ -95,7 +95,7 @@ class TableImage(Image):
             # Filter box if it's size less than 0,3% of table or perimeter less than 255. 255 - magic number
             # ToDo think what to do with 255
             sm = cv2.arcLength(counter, True)
-            if (box_width * box_height) < (height * width / 300) or sm <= 225: continue
+            if (box_width * box_height) < (height * width / 1000) or sm <= 125: continue
 
             self.cells.append(ContourOfCell(box))
 
