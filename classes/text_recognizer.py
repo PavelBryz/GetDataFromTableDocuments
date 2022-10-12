@@ -24,7 +24,8 @@ class Recognizer:
         self.is_empty = self.__is_empty()
 
     def __is_empty(self):
-        _, image = cv2.threshold(self.image, 200, 255, 0)
+        im = self.image[5:-5, 5: -5]
+        _, image = cv2.threshold(im, 200, 255, 0)
         #
         # cv2.imshow('Display', image)
         # cv2.waitKey(0)
