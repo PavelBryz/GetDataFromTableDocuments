@@ -36,7 +36,8 @@ def process_json_test(text):
 def process_file(file: FileStorage):
     data = Data()
     if file.mimetype == 'application/pdf':
-        images = pdf_to_png(file)
+        file.save(file.filename)
+        images = pdf_to_png(file.filename)
         for i, img in enumerate(images):
             im = PageImage(img)
             im.rotate()
@@ -47,20 +48,24 @@ def process_file(file: FileStorage):
             ContourOfTable.set_numbers(im.counters)
             im.counters = ContourOfTable.sort_contours(im.counters)
 
+            im.display()
+
             _, im_width = im.get_width_height()
 
             for ctr in im.counters:
                 tbl = TableImage(im.crop_image(ctr))
-                tbl.resize(2)
 
                 _, tbl_width = tbl.get_width_height()
                 if tbl_width >= im_width / 2:
                     tbl.draw_lines()
 
                 tbl.find_counters()
+                tbl.cells = ContourOfCell.filter_contours(tbl.cells)
                 ContourOfCell.set_rows(tbl.cells)
                 ContourOfCell.set_columns(tbl.cells)
                 tbl.cells = ContourOfCell.sort_contours(tbl.cells)
+
+                tbl.display()
 
                 for cl in tbl.cells:
                     cell = CellImage(tbl.crop_image(cl))
@@ -71,11 +76,11 @@ def process_file(file: FileStorage):
                     cl.text_processor.add_with_filter(rec.processing_image(3, 150, TYPE_THRESHOLD))
                     cl.text_processor.add_with_filter(rec.processing_image(2, 145, TYPE_THRESHOLD))
                     cl.text_processor.add_with_filter(rec.processing_image(2, 220, TYPE_THRESHOLD))
-
                     cl.text = cl.text_processor.get_result()
                     print(f"file={file.filename}|{i}|{cl}")
-
                     data.add_cell(cl, ctr, i, file.filename)
+
+                    cell.display()
 
             im.erase_tables()
 
@@ -93,14 +98,15 @@ def process_file(file: FileStorage):
                 ln.text_processor.add_with_filter(rec.processing_image(3, 150, TYPE_THRESHOLD))
                 ln.text_processor.add_with_filter(rec.processing_image(2, 145, TYPE_THRESHOLD))
                 ln.text_processor.add_with_filter(rec.processing_image(2, 220, TYPE_THRESHOLD))
-
                 ln.text = ln.text_processor.get_result()
                 print(f"file={file.filename}|{i}|{ln}")
-
                 data.add_line(ln, i, file.filename)
 
-        data.sort()
-        data.df.to_excel("res.xlsx")
+                line.display()
+
+    data.sort()
+    data.df.to_excel("res.xlsx")
+
     return "res.xlsx"
 
 def do_magic(im):

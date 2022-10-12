@@ -13,7 +13,8 @@ from utilities.helpers import find_box, angle_transform
 OPERATION_TYPE_TABLE: Final[int] = 0
 OPERATION_TYPE_TEXT: Final[int] = 1
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,7))
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 7))
+
 
 class PageImage(Image):
     def __init__(self, file: Union[ndarray, str]):
@@ -93,14 +94,14 @@ class PageImage(Image):
 
             if box[0][0] == 0 or box[0][1] == 0 or w == 0 or h == 0: continue
             if box[0][0] < 0 or box[0][1] < 0 or \
-               box[1][0] < 0 or box[1][1] < 0 or \
-               box[2][0] < 0 or box[2][1] < 0 or \
-               box[3][0] < 0 or box[3][1] < 0: continue
+                    box[1][0] < 0 or box[1][1] < 0 or \
+                    box[2][0] < 0 or box[2][1] < 0 or \
+                    box[3][0] < 0 or box[3][1] < 0: continue
 
             if type_of_operation == OPERATION_TYPE_TEXT:
                 if box[0][1] < 10 or box[2][1] > (height - 10) or box[3][0] < 10 or box[1][0] > (width - 10): continue
                 if abs(box[2][1] - box[0][1]) < 5 or abs(box[2][0] - box[0][0]) < 50: continue
-                if len(counter) < 15 : continue
+                if len(counter) < 15: continue
 
                 self.counters.append(ContourOfLine(box))
             else:
