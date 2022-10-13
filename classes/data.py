@@ -1,5 +1,6 @@
+import os
 import pandas as pd
-
+from openpyxl import load_workbook
 
 from classes.contour import ContourOfCell, ContourOfTable, ContourOfLine
 from classes.pageImage import PageImage
@@ -48,3 +49,21 @@ class Data:
     def sort(self):
         self.df = self.df.sort_values(by=['Номер страницы', 'КоординатаДляСортировки', 'Номер таблицы', 'Строка','Колонка','Номер строки'])
         # self.df = self.df.drop('КоординатаДляСортировки')
+
+    def save(self, path: str):
+        if not os.path.isfile(path):
+            self.df.to_excel(path)
+            return
+
+        book = load_workbook(path)
+        writer = pd.ExcelWriter(path, engine='openpyxl')
+        writer.book = book
+        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+        max_row = writer.book.worksheets[0].max_row
+
+        self.df.to_excel(writer, "Main", header=None, startrow=max_row)
+
+        writer.save()
+
+
