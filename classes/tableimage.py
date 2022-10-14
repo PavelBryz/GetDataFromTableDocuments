@@ -49,11 +49,11 @@ class TableImage(Image):
             for x1, y1, x2, y2 in line:
                 length = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-                if y1 == y2 and length >= self.image.shape[1] / 4 and not len([y for y in h_lines if abs(y - y1) < 10]):
+                if y1 == y2 and length >= self.image.shape[1] / 2 and not len([y for y in h_lines if abs(y - y1) < 10]):
                     cv2.line(line_image, (0, y1), (self.image.shape[1], y2), (255, 255, 255), 2)
                     h_lines.append(y1)
                     # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                if x1 == x2 and (length >= self.image.shape[0] / 4 or ((y1 < 10 or y2 < 10) and length >= self.image.shape[0] / 10)) and not len([x for x in w_lines if abs(x - x1) < 10]):
+                if x1 == x2 and (length >= self.image.shape[0] / 2 or ((y1 < 10 or y2 < 10) and length >= self.image.shape[0] / 10)) and not len([x for x in w_lines if abs(x - x1) < 10]):
                     cv2.line(line_image, (x1, 0), (x2, self.image.shape[0]), (255, 255, 255), 2)
                     w_lines.append(x1)
                     # cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 2)

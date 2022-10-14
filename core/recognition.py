@@ -36,8 +36,9 @@ def process_json_test(text):
 def process_file(file: FileStorage):
     data = Data()
     if file.mimetype == 'application/pdf':
-        file.save(file.filename)
-        images = pdf_to_png(file.filename)
+        filename = file.filename.split('\\')[-1]
+        file.save(filename)
+        images = pdf_to_png(filename)
         for i, img in enumerate(images):
             im = PageImage(img)
             im.rotate()
