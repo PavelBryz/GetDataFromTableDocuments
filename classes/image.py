@@ -47,3 +47,8 @@ class Image:
             self.image = cv2.resize(self.image, (int(width * scale), int(height * scale)), cv2.INTER_NEAREST)
         except Exception:
             pass
+
+    @staticmethod
+    def static_display(img: ndarray):
+        cv2.imshow('Display', img)
+        cv2.waitKey(0)

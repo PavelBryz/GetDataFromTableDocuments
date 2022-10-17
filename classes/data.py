@@ -52,7 +52,7 @@ class Data:
 
     def save(self, path: str):
         if not os.path.isfile(path):
-            self.df.to_excel(path)
+            self.df.to_excel(path, sheet_name="Main")
             return
 
         book = load_workbook(path)

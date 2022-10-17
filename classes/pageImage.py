@@ -76,12 +76,20 @@ class PageImage(Image):
     def find_counters(self, type_of_operation):
         self.counters = []
 
-        _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        # _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        thresh = cv2.adaptiveThreshold(self.image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 31, 30)
+
         if type_of_operation == OPERATION_TYPE_TEXT:
             # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 10))
             thresh = cv2.dilate(thresh, kernel, iterations=3)
             # thresh = cv2.dilate(thresh, kernel, iterations=9)
         counters, hi = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # img = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
+        # image_counter = cv2.drawContours(img, counters, -1, (0, 0, 255), 1, cv2.LINE_8, hierarchy=hi)
+        #
+        # cv2.imshow('Display', image_counter)
+        # cv2.waitKey(0)
 
         height, width = self.get_width_height()
 
@@ -109,5 +117,5 @@ class PageImage(Image):
                 sm = cv2.arcLength(counter, True)
                 approx = cv2.approxPolyDP(counter, 0.02 * sm, True)
 
-                if w < (width * 0.05) or len(approx) != 4: continue
+                if w < (width * 0.05) or len(approx) < 3 or len(approx) > 6: continue
                 self.counters.append(ContourOfTable(box))
