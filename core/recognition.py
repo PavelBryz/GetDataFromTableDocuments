@@ -41,6 +41,9 @@ def process_file(file: FileStorage):
         images = pdf_to_png(filename)
         for i, img in enumerate(images):
             im = PageImage(img)
+
+            # im.display()
+
             im.rotate()
 
             im.find_counters(OPERATION_TYPE_TABLE)
@@ -49,7 +52,7 @@ def process_file(file: FileStorage):
             ContourOfTable.set_numbers(im.counters)
             im.counters = ContourOfTable.sort_contours(im.counters)
 
-            im.display()
+            # im.display()
 
             _, im_width = im.get_width_height()
 
@@ -60,13 +63,15 @@ def process_file(file: FileStorage):
                 if tbl_width >= im_width / 2:
                     tbl.draw_lines()
 
+                tbl.resize(2)
+
                 tbl.find_counters()
                 tbl.cells = ContourOfCell.filter_contours(tbl.cells)
                 ContourOfCell.set_rows(tbl.cells)
                 ContourOfCell.set_columns(tbl.cells)
                 tbl.cells = ContourOfCell.sort_contours(tbl.cells)
 
-                tbl.display()
+                # tbl.display()
 
                 for cl in tbl.cells:
                     cell = CellImage(tbl.crop_image(cl))
@@ -81,7 +86,7 @@ def process_file(file: FileStorage):
                     print(f"file={file.filename}|{i}|{cl}")
                     data.add_cell(cl, ctr, i, file.filename)
 
-                    cell.display()
+                    # cell.display()
 
             im.erase_tables()
 
@@ -91,7 +96,7 @@ def process_file(file: FileStorage):
 
             for ln in im.counters:
                 line = LineImage(im.crop_image(ln))
-                line.resize(2)
+                # line.resize(2)
 
                 rec = Recognizer(line.image)
 
@@ -103,7 +108,7 @@ def process_file(file: FileStorage):
                 print(f"file={file.filename}|{i}|{ln}")
                 data.add_line(ln, i, file.filename)
 
-                line.display()
+                # line.display()
 
     data.sort()
     data.df.to_excel("res.xlsx")

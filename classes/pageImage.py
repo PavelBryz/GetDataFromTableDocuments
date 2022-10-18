@@ -79,6 +79,9 @@ class PageImage(Image):
         # _, thresh = cv2.threshold(self.image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         thresh = cv2.adaptiveThreshold(self.image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 31, 30)
 
+        # cv2.imshow('Display', thresh)
+        # cv2.waitKey(0)
+
         if type_of_operation == OPERATION_TYPE_TEXT:
             # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 10))
             thresh = cv2.dilate(thresh, kernel, iterations=3)
